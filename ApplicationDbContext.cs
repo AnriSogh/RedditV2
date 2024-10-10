@@ -8,7 +8,7 @@ namespace Reddit
         public DbSet<Post> Posts { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<User> Users { get; set; }
-
+        public DbSet<Community> Communities { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options):
             base(options) 
@@ -73,6 +73,23 @@ namespace Reddit
                 entity.HasMany(u => u.Comments)
                     .WithOne(c => c.Author)
                     .HasForeignKey(c => c.AuthorId);
+            });
+            modelBuilder.Entity<Community>(entity =>
+            {
+                entity.HasKey(c => c.Id);
+                entity.Property(c => c.Name)
+                    .IsRequired()
+                    .HasMaxLength(100);
+                entity.Property(c => c.Description)
+                    .HasMaxLength(500);
+                entity.HasOne(c => c.Creator)
+                    .WithMany(u => u.CreatedCommunities)
+                    .HasForeignKey(c => c.CreatorId);
+                entity.HasMany(c => c.Subscribers)
+                    .WithMany(u => u.SubscribedCommunities);
+                entity.HasMany(c => c.Posts)
+                    .WithOne(p => p.Community)
+                    .HasForeignKey(p => p.CommunityId);
             });
 
 

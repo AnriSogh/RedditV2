@@ -102,6 +102,20 @@ namespace Reddit.Controllers
 
             return NoContent();
         }
+        [HttpPost("{id}/JoinCommunity/{communityId}")]
+        public async Task<IActionResult> JoinCommunity(int id, int communityId)
+        {
+            var user = await _context.Users.Include(u => u.SubscribedCommunities)
+                                           .FirstOrDefaultAsync(u => u.Id == id);
+            var community = await _context.Communities.FindAsync(communityId);
+            if (user == null || community == null)
+            {
+                return NotFound();
+            }
+            user.SubscribedCommunities.Add(community);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
 
         private bool UserExists(int id)
         {

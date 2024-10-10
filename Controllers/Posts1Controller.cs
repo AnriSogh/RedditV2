@@ -42,6 +42,7 @@ namespace Reddit.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutPost(int id, Post post)
         {
+
             if (id != post.Id)
             {
                 return BadRequest();
@@ -73,7 +74,14 @@ namespace Reddit.Controllers
         [HttpPost]
         public async Task<ActionResult<Post>> PostPost(PostDto postDto)
         {
+            var community = await _context.Communities.FindAsync(postDto.CommunityId);
+            if (community == null)
+            {
+                return NotFound("Community not found");
+            }
+
             var post = postDto.CreatePost();
+            post.Community = community;
 
             _context.Posts.Add(post);
             await _context.SaveChangesAsync();
